@@ -2315,12 +2315,17 @@ public abstract class Node implements EventTarget, Styleable {
         // that is called after all of the scenes have been synced but before
         // any of them have been rendered.
         final Runnable snapshotRunnable = () -> {
-            WritableImage img = doSnapshot(theParams, theImage);
-            SnapshotResult result = new SnapshotResult(img, Node.this, theParams);
-//                System.err.println("Calling snapshot callback");
+            SnapshotResult result = null;
             try {
-                Void v = theCallback.call(result);
+                WritableImage img = doSnapshot(theParams, theImage);
+                result = new SnapshotResult(img, Node.this, theParams);
             } catch (Throwable th) {
+                System.err.println("Exception while capturing snapshot");
+                th.printStackTrace(System.err);
+            } 
+            try {
+                theCallback.call(result);
+            } catch(Throwable th) {
                 System.err.println("Exception in snapshot callback");
                 th.printStackTrace(System.err);
             }
